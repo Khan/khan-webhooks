@@ -39,9 +39,6 @@ def hello():
             'create':
                 """%(name_html)s created revision """
                 """<a href="%(url_html)s">%(link_html)s</a>""",
-            'commit':
-                """%(name_html)s closed revision """
-                """<a href="%(url_html)s">%(link_html)s</a>""",
             'abandon':
                 """%(name_html)s abandoned revision """
                 """<a href="%(url_html)s">%(link_html)s</a>""",
