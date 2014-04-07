@@ -1,4 +1,6 @@
 import cgi
+import logging
+import re
 import sys
 
 try:
@@ -31,36 +33,26 @@ def username_from_phid(phid):
 # Add me to feed.http-hooks in Phabricator config
 @app.route('/phabricator-feed', methods=['POST'])
 def hello():
+    logging.info("Processing %s" % request.form)
     # TODO(alpert): Consider using native Phabricator Jabber support
     # https://secure.phabricator.com/T1271 when it happens.
-    if request.form['storyType'] == 'PhabricatorFeedStoryDifferential':
-        action = request.form['storyData[action]']
-        sentence_html_dict = {
-            'create':
-                """%(name_html)s created revision """
-                """<a href="%(url_html)s">%(link_html)s</a>""",
-            'abandon':
-                """%(name_html)s abandoned revision """
-                """<a href="%(url_html)s">%(link_html)s</a>""",
-        }
-        sentence_html = sentence_html_dict.get(action)
-        if sentence_html is not None:
-            phid = request.form['storyData[actor_phid]']
-            print phid
-            name = username_from_phid(phid)
-
-            rev_id = request.form['storyData[revision_id]']
-            url = "%s/D%s" % (secrets.phabricator_host, rev_id)
-
-            title = request.form['storyData[revision_name]']
-            link = "D%s: %s" % (rev_id, title)
-
-            message = sentence_html % {
-                    'name_html': cgi.escape(name, True),
+    if (request.form['storyType'] ==
+            'PhabricatorApplicationTransactionFeedStory'):
+        def linkify(match):
+            url = "%s/%s" % (secrets.phabricator_host, match.group(3))
+            return """%(pre)s<a href="%(url_html)s">%(link_html)s</a>.""" % {
+                    'pre': match.group(1),
                     'url_html': cgi.escape(url, True),
-                    'link_html': cgi.escape(link, True),
+                    'link_html': cgi.escape(match.group(2), True),
                 }
 
+        message, replaced = re.subn(
+            r"^([a-zA-Z0-9.]+ (?:created|abandoned) )"
+            r"((D[0-9]+): .*)\.$",
+            linkify,
+            request.form['storyText'])
+
+        if replaced:
             resp = requests.post(
                 "https://api.hipchat.com/v1/rooms/message?auth_token=%s" %
                     secrets.hipchat_token,
