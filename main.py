@@ -19,15 +19,38 @@ from third_party import requests
 app = Flask(__name__)
 
 
-def _username_from_phid(phid):
-    phab = phabricator.Phabricator(
+def _get_phabricator():
+    return phabricator.Phabricator(
             host=secrets.phabricator_host + '/api/',
             username=secrets.phabricator_username,
             certificate=secrets.phabricator_certificate,
         )
+
+
+def _username_from_phid(phid):
+    phab = _get_phabricator()
     resp = phab.phid.lookup(names=[phid]).response
     if phid in resp:
         return resp[phid]['name']
+
+
+def _callsigns_from_repo_urls(repo_urls):
+    """Given a list of possible repo URLs, return a set of all callsigns that
+    correspond to them.
+
+    Example:
+        _callsigns_from_repo_urls(["git@github.com:Khan/webapp"])  # ["GWA"]
+    """
+    phab = _get_phabricator()
+    # (This returns repos for URLs that match and ignores ones that don't.)
+    resp = phab.phid.repository.query(remoteURIs=repo_urls).response
+    return set(repo['callsign'] for repo in resp)
+
+
+def _looksoon(callsigns):
+    """Tell Phabricator to pull the repos with specified callsigns soon."""
+    phab = _get_phabricator()
+    phab.phid.diffusion.looksoon(callsigns=list(callsigns))
 
 
 def _link_html(url, text):
@@ -165,6 +188,17 @@ def github_feed():
     if short_repo_name == 'Khan/webapp' and (
             (branch + '-').startswith('athena-')):
         _send_to_hipchat(message_html, 'Athena', 'GitHub')
+
+    # Let's tell Phabricator to pull the repo we just got a notification about.
+    # `callsigns` is a list like ["GWA"] or [].
+    callsigns = _callsigns_from_repo_urls([
+        # GitHub repos take one of these two forms in Phabricator depending on
+        # whether they're public or private
+        "https://github.com/%s" % short_repo_name,
+        "git@github.com:%s" % short_repo_name,
+    ])
+    if callsigns:
+        _looksoon(callsigns)
 
     return ''
 
