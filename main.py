@@ -53,6 +53,27 @@ def _looksoon(callsigns):
     phab.phid.diffusion.looksoon(callsigns=list(callsigns))
 
 
+def _repository_phid_from_diff_id(diff_id):
+    phab = _get_phabricator()
+    resp = phab.phid.differential.query(ids=[diff_id]).response
+    if resp:
+        return resp[0]['repositoryPHID']
+
+
+def _callsign_from_repository_phid(phid):
+    """Given a repository's PHID, return its callsign. Returns None if the
+    repository can't be found.
+
+    Example:
+        # Returns "GI"
+        _callsign_from_repository_phid("PHID-REPO-izgobria5djkn7tadrmf")
+    """
+    phab = _get_phabricator()
+    resp = phab.phid.repository.query(phids=[phid]).response
+    if resp:
+        return resp[0]['callsign']
+
+
 def _link_html(url, text):
     return '<a href="%s">%s</a>' % (cgi.escape(url, True), cgi.escape(text))
 
@@ -86,15 +107,27 @@ def phabricator_feed():
                     'link': _link_html(url, match.group(2)),
                 }
 
-        message, replaced = re.subn(
+        match = re.match(
             r"^([a-zA-Z0-9.]+ (?:created|abandoned) )"
-            r"((D[0-9]+): .*)\.$",
-            linkify,
+            r"(D([0-9]+): .*)\.$",
             request.form['storyText'])
 
-        if replaced:
-            # TODO(alpert): Different rooms for different repos?
+        if match:
+            # ('alpert created ', 'D1234: Moo', '1234')
+            subject_verb, link_text, diff_id = match.groups()
+            diff_id = int(diff_id)
+
+            url = "%s/D%s" % (secrets.phabricator_host, diff_id)
+            message = "%s%s." % (subject_verb, _link_html(url, link_text))
+
+            repo_phid = _repository_phid_from_diff_id(diff_id)
+            repo_callsign = None
+            if repo_phid:
+                repo_callsign = _callsign_from_repository_phid(repo_phid)
+
             _send_to_hipchat(message, '1s and 0s', 'Phabricator Fox')
+            if repo_callsign == 'GI':
+                _send_to_hipchat(message, 'Mobile!', 'Phabricator Fox')
 
     return ''
 
