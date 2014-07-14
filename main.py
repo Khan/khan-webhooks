@@ -127,10 +127,10 @@ def github_feed():
     repo_html = _link_html(payload['repository']['url'], short_repo_name)
     before_html = _link_html(
         "%s/commit/%s" % (payload['repository']['url'], payload['before']),
-        payload['before'][:6])
+        payload['before'][:7])
     after_html = _link_html(
         "%s/commit/%s" % (payload['repository']['url'], payload['after']),
-        payload['after'][:6])
+        payload['after'][:7])
 
     if payload['created']:
         verb_html = "created branch %s of %s" % (branch_link_html, repo_html)
