@@ -96,17 +96,8 @@ def _send_to_hipchat(message, room, from_name):
 @app.route('/phabricator-feed', methods=['POST'])
 def phabricator_feed():
     logging.info("Processing %s" % request.form)
-    # TODO(alpert): Consider using native Phabricator Jabber support
-    # https://secure.phabricator.com/T1271 when it happens.
     if (request.form['storyType'] ==
             'PhabricatorApplicationTransactionFeedStory'):
-        def linkify(match):
-            url = "%s/%s" % (secrets.phabricator_host, match.group(3))
-            return """%(pre)s%(link)s.""" % {
-                    'pre': match.group(1),
-                    'link': _link_html(url, match.group(2)),
-                }
-
         match = re.match(
             r"^([a-zA-Z0-9.]+ (?:created|abandoned) )"
             r"(D([0-9]+): .*)\.$",
@@ -128,6 +119,8 @@ def phabricator_feed():
             _send_to_hipchat(message, '1s and 0s', 'Phabricator Fox')
             if repo_callsign == 'GI':
                 _send_to_hipchat(message, 'Mobile!', 'Phabricator Fox')
+            if repo_callsign in ('KE', 'PE'):
+                _send_to_hipchat(message, 'Content tools', 'Phabricator Fox')
 
     return ''
 
@@ -196,9 +189,19 @@ def github_feed():
         if len(commit_message) > MAX_LINE_LENGTH:
             commit_message = commit_message[:MAX_LINE_LENGTH - 3] + '...'
 
-        html_lines.append("- %s (%s)" % (
+        commit_link = _link_html(commit['url'], commit['id'][:7])
+
+        revision_link = None
+        match = re.search(
+            r'\n\nDifferential Revision: (http.+/(D[0-9]+))(?:\n\n|$)',
+            commit['message'])
+        if match:
+            revision_link = _link_html(match.group(1), match.group(2))
+
+        html_lines.append("- %s (%s%s)" % (
             cgi.escape(commit_message, True),
-            _link_html(commit['url'], commit['id'][:7])))
+            revision_link + ', ' if revision_link else '',
+            commit_link))
 
     if old_commits:
         # If this is a fast-forward push, omit the "and"
@@ -221,6 +224,10 @@ def github_feed():
     if short_repo_name == 'Khan/webapp' and (
             (branch + '-').startswith('athena-')):
         _send_to_hipchat(message_html, 'Athena', 'GitHub')
+    if short_repo_name == 'Khan/iOS':
+        _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
+    if short_repo_name in ('Khan/khan-exercises', 'Khan/perseus'):
+        _send_to_hipchat(message_html, 'Content tools', 'GitHub')
 
     # Let's tell Phabricator to pull the repo we just got a notification about.
     # `callsigns` is a list like ["GWA"] or [].
