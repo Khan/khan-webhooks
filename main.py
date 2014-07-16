@@ -78,14 +78,14 @@ def _link_html(url, text):
     return '<a href="%s">%s</a>' % (cgi.escape(url, True), cgi.escape(text))
 
 
-def _send_to_hipchat(message, room, from_name):
+def _send_to_hipchat(message, room, from_name, color='yellow'):
     resp = requests.post(
         "https://api.hipchat.com/v1/rooms/message?auth_token=%s" %
             secrets.hipchat_token,
         data={
             'from': from_name,
             'room_id': room,
-            'color': 'yellow',
+            'color': color,
             'message_format': 'html',
             'message': message
         })
@@ -228,6 +228,14 @@ def github_feed():
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
     if short_repo_name in ('Khan/khan-exercises', 'Khan/perseus'):
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
+
+    if (short_repo_name == 'Khan/webapp' and branch == 'master' and
+            username != 'ka-role'):
+        _send_to_hipchat(
+            "^^ Illegal push to master branch of Khan/webapp. %s, run "
+            "tools/hook-check.sh to set up hooks to prevent accidental "
+            "pushes to master in the future." % cgi.escape(username, True),
+            '1s and 0s', 'GitHub', color='red')
 
     # Let's tell Phabricator to pull the repo we just got a notification about.
     # `callsigns` is a list like ["GWA"] or [].
