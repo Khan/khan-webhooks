@@ -220,7 +220,7 @@ def github_feed():
 
     # TODO(alpert): More elaborate configuration? We'll see if this gets
     # unmanageable.
-    _send_to_hipchat(message_html, '1s and 0s', 'GitHub')
+    _send_to_hipchat(message_html, '1s/0s: commits', 'GitHub')
     if short_repo_name == 'Khan/webapp' and (
             (branch + '-').startswith('athena-')):
         _send_to_hipchat(message_html, 'Athena', 'GitHub')
@@ -235,7 +235,7 @@ def github_feed():
             "^^ Illegal push to master branch of Khan/webapp. %s, run "
             "tools/hook-check.sh to set up hooks to prevent accidental "
             "pushes to master in the future." % cgi.escape(username, True),
-            '1s and 0s', 'GitHub', color='red')
+            '1s/0s: commits', 'GitHub', color='red')
 
     # Let's tell Phabricator to pull the repo we just got a notification about.
     # `callsigns` is a list like ["GWA"] or [].
