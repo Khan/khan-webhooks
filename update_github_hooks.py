@@ -15,6 +15,7 @@ def org_repos(org_name, github_auth):
     url = "https://api.github.com/orgs/%s/repos" % org_name
     while url:
         r = requests.get(url, auth=github_auth)
+        r.raise_for_status()
 
         for repo in r.json():
             yield repo
@@ -31,6 +32,7 @@ def update_hooks(repo_name, github_auth, dry_run):
 
     r = requests.get("https://api.github.com/repos/%s/hooks" % repo_name,
                      auth=github_auth)
+    r.raise_for_status()
     hooks = r.json()
 
     hipchat_hooks = []
@@ -52,6 +54,7 @@ def update_hooks(repo_name, github_auth, dry_run):
             requests.delete("https://api.github.com/repos/%s/hooks/%s" %
                                 (repo_name, hook['id']),
                             auth=github_auth)
+            r.raise_for_status()
 
     if khan_webhooks_hook:
         if khan_webhooks_hook['active']:
@@ -62,7 +65,7 @@ def update_hooks(repo_name, github_auth, dry_run):
         print "-- Creating web hook"
         if not dry_run:
             r = requests.post(
-                "https://api.github.com/repos/%s/hooks" % id,
+                "https://api.github.com/repos/%s/hooks" % repo_name,
                 data=json.dumps({
                     'name': 'web',
                     'config': {
@@ -72,6 +75,7 @@ def update_hooks(repo_name, github_auth, dry_run):
                     'events': ['push'],
                     'active': True,
                 }), auth=github_auth)
+            r.raise_for_status()
 
 
 def main(dry_run):
