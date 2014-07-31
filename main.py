@@ -224,6 +224,8 @@ def github_feed():
     if short_repo_name == 'Khan/webapp' and (
             (branch + '-').startswith('athena-')):
         _send_to_hipchat(message_html, 'Athena', 'GitHub')
+    if short_repo_name == 'Khan/webapp' and branch == 'cnc':
+        _send_to_hipchat(message_html, 'Classy coaches', 'GitHub')
     if short_repo_name == 'Khan/iOS':
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
     if short_repo_name in ('Khan/khan-exercises', 'Khan/perseus'):
