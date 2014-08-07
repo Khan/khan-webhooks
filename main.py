@@ -228,7 +228,8 @@ def github_feed():
         _send_to_hipchat(message_html, 'Classy coaches', 'GitHub')
     if short_repo_name == 'Khan/iOS':
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
-    if short_repo_name in ('Khan/khan-exercises', 'Khan/perseus'):
+    if short_repo_name in ('Khan/khan-exercises', 'Khan/perseus',
+            'Khan/content-tools-tools'):
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
 
     if (short_repo_name == 'Khan/webapp' and branch == 'master' and
