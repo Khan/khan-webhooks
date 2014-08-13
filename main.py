@@ -229,7 +229,7 @@ def github_feed():
     if short_repo_name == 'Khan/iOS':
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
     if short_repo_name in ('Khan/khan-exercises', 'Khan/perseus',
-            'Khan/content-tools-tools'):
+            'Khan/content-tools-tools', 'Khan/react-components'):
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
 
     if (short_repo_name == 'Khan/webapp' and branch == 'master' and
