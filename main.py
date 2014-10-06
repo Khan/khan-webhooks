@@ -47,6 +47,50 @@ def _callsigns_from_repo_urls(repo_urls):
     return set(repo['callsign'] for repo in resp)
 
 
+def _callsigns_from_short_repo_names(short_repo_names):
+    """Given a list of short repo names, like 'Khan/webapp', return a set of
+    all callsigns that correspond to them
+
+    Example:
+        _callsigns_from_short_repo_names(["Khan/webapp"])  # ["GWA"]
+    """
+    results = []
+    for short_repo_name in short_repo_names:
+        # GitHub repos take one of these two forms in Phabricator depending on
+        # whether they're public or private
+        urls = (
+            "https://github.com/%s" % short_repo_name,
+            "git@github.com:%s" % short_repo_name
+        )
+        for callsign in _callsigns_from_repo_urls(urls):
+            results.append(callsign)
+    return results
+
+
+CONTENT_TOOLS_REPOS = [
+    'Khan/content-tools-tools',
+    'Khan/graphie-to-png',
+    'Khan/KAS',
+    'Khan/KaTeX',
+    'Khan/khan-exercises',
+    'Khan/mathquill',
+    'Khan/perseus',
+    'Khan/perseus-one',
+    'Khan/RCSS',
+    'Khan/react-components'
+]
+
+_CONTENT_TOOLS_CALLSIGNS_CACHE = None
+
+
+def _get_content_tools_callsigns():
+    global _CONTENT_TOOLS_CALLSIGNS_CACHE
+    if _CONTENT_TOOLS_CALLSIGNS_CACHE is None:
+        _CONTENT_TOOLS_CALLSIGNS_CACHE = (
+                _callsigns_from_short_repo_names(CONTENT_TOOLS_REPOS))
+    return _CONTENT_TOOLS_CALLSIGNS_CACHE
+
+
 def _looksoon(callsigns):
     """Tell Phabricator to pull the repos with specified callsigns soon."""
     phab = _get_phabricator()
@@ -119,7 +163,7 @@ def phabricator_feed():
             _send_to_hipchat(message, '1s and 0s', 'Phabricator Fox')
             if repo_callsign == 'GI':
                 _send_to_hipchat(message, 'Mobile!', 'Phabricator Fox')
-            if repo_callsign in ('KE', 'PE'):
+            if repo_callsign in _get_content_tools_callsigns():
                 _send_to_hipchat(message, 'Content tools', 'Phabricator Fox')
 
     return ''
@@ -231,8 +275,7 @@ def github_feed():
         _send_to_hipchat(message_html, 'SAT', 'GitHub')
     if short_repo_name == 'Khan/iOS':
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
-    if short_repo_name in ('Khan/khan-exercises', 'Khan/perseus',
-            'Khan/content-tools-tools', 'Khan/react-components'):
+    if short_repo_name in CONTENT_TOOLS_REPOS:
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
 
     if (short_repo_name == 'Khan/webapp' and branch == 'master' and
@@ -245,12 +288,7 @@ def github_feed():
 
     # Let's tell Phabricator to pull the repo we just got a notification about.
     # `callsigns` is a list like ["GWA"] or [].
-    callsigns = _callsigns_from_repo_urls([
-        # GitHub repos take one of these two forms in Phabricator depending on
-        # whether they're public or private
-        "https://github.com/%s" % short_repo_name,
-        "git@github.com:%s" % short_repo_name,
-    ])
+    callsigns = _callsigns_from_short_repo_names([short_repo_name])
     if callsigns:
         _looksoon(callsigns)
 
