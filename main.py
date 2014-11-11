@@ -273,6 +273,9 @@ def github_feed():
     if short_repo_name == 'Khan/webapp' and (
             (branch + '-').startswith('sat-')):
         _send_to_hipchat(message_html, 'SAT', 'GitHub')
+    if short_repo_name == 'Khan/webapp' and (
+            (branch + '-').startswith('growth-')):
+        _send_to_hipchat(message_html, 'Growth', 'GitHub')
     if short_repo_name == 'Khan/iOS':
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
     if short_repo_name in CONTENT_TOOLS_REPOS:
