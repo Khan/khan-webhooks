@@ -189,6 +189,10 @@ def github_feed():
     short_repo_name = "%s/%s" % (payload['repository']['owner']['name'],
                                  payload['repository']['name'])
 
+    if short_repo_name in ('Khan/jenkins',):
+        logging.info("Skipping notification for repo %s", short_repo_name)
+        return ''
+
     old_commits = [c for c in payload['commits'] if not c['distinct']]
     new_commits = [c for c in payload['commits'] if c['distinct']]
 
