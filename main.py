@@ -80,6 +80,11 @@ CONTENT_TOOLS_REPOS = [
     'Khan/react-components'
 ]
 
+PROTOTOPING_REPOS = [
+    'Khan/Prototope',
+    'Khan/OhaiPrototope'
+]
+
 _CONTENT_TOOLS_CALLSIGNS_CACHE = None
 
 
@@ -284,6 +289,8 @@ def github_feed():
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
     if short_repo_name in CONTENT_TOOLS_REPOS:
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
+    if short_repo_name in PROTOTOPING_REPOS:
+        _send_to_hipchat(message_html, 'Prototoping!', 'Github')
 
     if (short_repo_name == 'Khan/webapp' and branch == 'master' and
             username != 'ka-role'):
