@@ -287,6 +287,8 @@ def github_feed():
         _send_to_hipchat(message_html, 'Growth', 'GitHub')
     if short_repo_name == 'Khan/iOS':
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
+    if short_repo_name == 'Khan/android':
+        _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
     if short_repo_name in CONTENT_TOOLS_REPOS:
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
     if short_repo_name in PROTOTOPING_REPOS:
