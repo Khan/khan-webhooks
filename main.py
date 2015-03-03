@@ -291,6 +291,8 @@ def github_feed():
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
     if short_repo_name in PROTOTOPING_REPOS:
         _send_to_hipchat(message_html, 'Prototoping!', 'Github')
+    if short_repo_name == 'Khan/Early-Math-Prototypes':
+        _send_to_hipchat(message_html, 'Early Math!', 'Github')
 
     if (short_repo_name == 'Khan/webapp' and branch == 'master' and
             username != 'ka-role'):
