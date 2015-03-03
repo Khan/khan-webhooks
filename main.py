@@ -166,10 +166,13 @@ def phabricator_feed():
                 repo_callsign = _callsign_from_repository_phid(repo_phid)
 
             _send_to_hipchat(message, '1s and 0s', 'Phabricator Fox')
-            if repo_callsign == 'GI':
+            # khan/iOS or khan/android:
+            if repo_callsign == 'GI' or repo_callsign == 'GAN':
                 _send_to_hipchat(message, 'Mobile!', 'Phabricator Fox')
             if repo_callsign in _get_content_tools_callsigns():
                 _send_to_hipchat(message, 'Content tools', 'Phabricator Fox')
+            if repo_callsign == 'GEMP':
+                _send_to_hipchat(message, 'Early Math!', 'Phabricator Fox')
 
     return ''
 
@@ -285,9 +288,7 @@ def github_feed():
     if short_repo_name == 'Khan/webapp' and (
             (branch + '-').startswith('growth-')):
         _send_to_hipchat(message_html, 'Growth', 'GitHub')
-    if short_repo_name == 'Khan/iOS':
-        _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
-    if short_repo_name == 'Khan/android':
+    if short_repo_name == 'Khan/iOS' or short_repo_name == 'Khan/android':
         _send_to_hipchat(message_html, 'Mobile!', 'GitHub')
     if short_repo_name in CONTENT_TOOLS_REPOS:
         _send_to_hipchat(message_html, 'Content tools', 'GitHub')
