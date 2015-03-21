@@ -77,7 +77,9 @@ CONTENT_TOOLS_REPOS = [
     'Khan/perseus',
     'Khan/perseus-one',
     'Khan/RCSS',
-    'Khan/react-components'
+    'Khan/react-components',
+    'Khan/simple-markdown',
+    'Khan/kmath'
 ]
 
 PROTOTOPING_REPOS = [
