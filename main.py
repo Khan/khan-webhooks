@@ -290,6 +290,9 @@ def github_feed():
     if short_repo_name == 'Khan/webapp' and (
             (branch + '-').startswith('growth-')):
         _send_to_hipchat(message_html, 'Growth', 'GitHub')
+    if short_repo_name == 'Khan/webapp' and (
+            (branch + '-').startswith('support-')):
+        _send_to_hipchat(message_html, 'Support', 'GitHub')
     if short_repo_name in ('Khan/iOS',
                            'Khan/android',
                            'Khan/mobile-client-webview-resources'):
