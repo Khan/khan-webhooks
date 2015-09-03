@@ -111,7 +111,7 @@ def _callsign_from_repository_phid(phid):
 def _send_to_slack(message, channel):
     logging.info('Posting "%s" to %s in Slack' % (message, channel))
     post_data = {
-        'text': ':phabricator: ' + message,
+        'text': message,
         'channel': channel,
         'username': 'Phabricator Fox',
         'icon_emoji': ':fox:',
@@ -137,7 +137,8 @@ class PhabFox(webapp2.RequestHandler):
                 diff_id = int(diff_id)
 
                 url = "%s/D%s" % (secrets.phabricator_host, diff_id)
-                message = "%s<%s|%s>." % (subject_verb, url, link_text)
+                message = "%s :phabricator: <%s|%s>." % (subject_verb,
+                                                         url, link_text)
 
                 repo_phid = _repository_phid_from_diff_id(diff_id)
                 repo_callsign = None
