@@ -127,20 +127,19 @@ class PhabFox(webapp2.RequestHandler):
         if (self.request.get('storyType') ==
                 'PhabricatorApplicationTransactionFeedStory'):
             match = re.match(
-                r"^([a-zA-Z0-9.]+ (?:created|abandoned) )"
-                r"(D([0-9]+): .*)\.$",
+                r"^(?P<who>[a-zA-Z0-9.]+) (?P<action>created|abandoned) "
+                r"(?P<code>D[0-9]+): (?P<description>.*)\.$",
                 self.request.get('storyText'))
 
             if match:
-                # ('alpert created ', 'D1234: Moo', '1234')
-                subject_verb, link_text, diff_id = match.groups()
-                diff_id = int(diff_id)
+                url = "%s/%s" % (secrets.phabricator_host, match.group('code'))
+                message = u':phabricator: <%s|%s>: %s (%s by %s)' % (
+                    url, match.group('code'),
+                    match.group('description'),
+                    match.group('action'), match.group('who'))
 
-                url = "%s/D%s" % (secrets.phabricator_host, diff_id)
-                message = "%s :phabricator: <%s|%s>." % (subject_verb,
-                                                         url, link_text)
-
-                repo_phid = _repository_phid_from_diff_id(diff_id)
+                repo_phid = _repository_phid_from_diff_id(
+                    int(match.group('code')[1:]))
                 repo_callsign = None
                 if repo_phid:
                     repo_callsign = _callsign_from_repository_phid(repo_phid)
