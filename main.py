@@ -144,7 +144,7 @@ class PhabFox(webapp2.RequestHandler):
                 if repo_phid:
                     repo_callsign = _callsign_from_repository_phid(repo_phid)
 
-                _send_to_slack(message, '#1s-and-0s')
+                _send_to_slack(message, '#1s-and-0s-commits')
                 for extra_channel in CALLSIGN_CHANNEL_MAP.get(
                         repo_callsign, []):
                     _send_to_slack(message, extra_channel)
