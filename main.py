@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import re
@@ -14,6 +15,7 @@ except ImportError:
 
 sys.path.insert(1, 'third_party')
 from third_party import phabricator
+from third_party.pytz.gae import pytz
 from third_party import requests
 
 
@@ -108,13 +110,14 @@ def _callsign_from_repository_phid(phid):
         return resp[0]['callsign']
 
 
-def _send_to_slack(message, channel):
+def _send_to_slack(message, channel, username, icon_emoji):
     logging.info('Posting "%s" to %s in Slack' % (message, channel))
     post_data = {
         'text': message,
         'channel': channel,
-        'username': 'Phabricator Fox',
-        'icon_emoji': ':fox:',
+        'username': username,
+        'icon_emoji': icon_emoji,
+        'link_names': 1,
     }
     requests.post(secrets.slack_webhook_url,
                   data={'payload': json.dumps(post_data)})
@@ -144,14 +147,60 @@ class PhabFox(webapp2.RequestHandler):
                 if repo_phid:
                     repo_callsign = _callsign_from_repository_phid(repo_phid)
 
-                _send_to_slack(message, '#1s-and-0s-commits')
+                _send_to_slack(message, '#1s-and-0s-commits',
+                               'Phabricator Fox', ':fox:')
                 for extra_channel in CALLSIGN_CHANNEL_MAP.get(
                         repo_callsign, []):
-                    _send_to_slack(message, extra_channel)
+                    _send_to_slack(message, extra_channel, 'Phabricator Fox',
+                                   ':fox:')
 
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('OK')
 
+
+def _pager_parrot_message(incident):
+    base_message = (
+        "{at_mention}Oh no! {priority} <{url}|incident #{number}> opened in "
+        "PagerDuty. I'll {action} to make sure someone is looking at it. See "
+        "<http://911.khanacademy.org/|the 911 docs> for more information "
+        "on these alerts.")
+    now = datetime.datetime.now(pytz.timezone('US/Pacific'))
+
+    if incident['urgency'] == 'high':
+        at_mention = '@channel '
+        priority = 'P911'
+        action = 'start calling the P911 list'
+    elif now.weekday() < 5:
+        # if it's a weekday, mention the support team.
+        at_mention = '@support-team '
+        priority = 'P0'
+        action = 'text and email the support DRI'
+    else:
+        at_mention = ''
+        priority = 'P0'
+        action = 'text and email the person on-ping'
+
+    return base_message.format(
+        at_mention=at_mention, priority=priority, url=incident['html_url'],
+        number=incident['incident_number'], action=action)
+
+
+# Add me as an outgoing webhook for a service in PagerDuty.
+# See http://911.khanacademy.org/ for details.
+class PagerParrot(webapp2.RequestHandler):
+    # TODO(benkraft): this has no auth whatsoever.  I'm not too worried about
+    # it, but we might want to do some sort of checking (e.g. via hitting the
+    # PagerDuty API) or use an obscure URL.
+    def post(self):
+        logging.info("Processing %s" % self.request.body)
+        payload = json.loads(self.request.body)
+
+        for message in payload['messages']:
+            _send_to_slack(_pager_parrot_message(message['data']['incident']),
+                           '#1s-and-0s', 'Pager Parrot', ':parrot:')
+
+
 app = webapp2.WSGIApplication([
     ('/phabricator-feed', PhabFox),
+    ('/pagerduty-feed', PagerParrot),
 ])

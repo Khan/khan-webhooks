@@ -4,3 +4,6 @@
 [submodule "third_party/requests-src"]
 	path = third_party/requests-src
 	url = https://github.com/Khan/requests.git
+[submodule "third_party/gae-pytz-src"]
+	path = third_party/gae-pytz-src
+	url = https://github.com/Khan/gae-pytz.git
