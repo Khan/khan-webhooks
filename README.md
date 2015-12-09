@@ -7,18 +7,14 @@ and setting the phabricator_certificate field to be the value from
 'show secret' at
     https://phabricator.khanacademy.org/K56
 
-Also fill in hipchat_token, taking the value from 'show secret' at
-    https://phabricator.khanacademy.org/K39
-
-Log into the App Engine console for the khan-webhooks app (as prod-deploy@).
-The password fo that is here:
-    https://phabricator.khanacademy.org/K43
+Also fill in slack_webhook_url, taking the value from 'show secret' at
+    https://phabricator.khanacademy.org/K94
 
 Then open the Versions tab to see what the current version is.
 You can then deploy using
 
 ```
-appcfg.py --oauth2 update . -V 9
+appcfg.py . -V 9
 ```
 
 where `9` is one more than the latest version.
