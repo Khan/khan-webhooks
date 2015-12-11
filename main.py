@@ -19,6 +19,15 @@ from third_party.pytz.gae import pytz
 from third_party import requests
 
 
+# Pagerduty adds a UUID to every message for deduping.  We do actually seem to
+# get some messages twice, so we'll use it to dedupe; this is the list of
+# message ids we've seen.  We'll just keep it in instance memory, because the
+# dupes tend to be close together, and if we accidentally send to Slack twice
+# it's not the end of the world.  In fact, Kamens thinks it's a very parrot-y
+# thing to do.
+pagerduty_ids_seen = set()
+
+
 def _get_phabricator():
     return phabricator.Phabricator(
         host=secrets.phabricator_host + '/api/',
@@ -195,9 +204,16 @@ class PagerParrot(webapp2.RequestHandler):
         logging.info("Processing %s" % self.request.body)
         payload = json.loads(self.request.body)
 
+        global pagerduty_ids_seen
         for message in payload['messages']:
-            _send_to_slack(_pager_parrot_message(message['data']['incident']),
-                           '#1s-and-0s', 'Pager Parrot', ':parrot:')
+            if (message['id'] not in pagerduty_ids_seen and
+                    message['type'] == 'incident.trigger'):
+                # Only trigger if we haven't seen the message, and if it's a
+                # trigger, rather than an acknowledgement or resolve.
+                _send_to_slack(
+                    _pager_parrot_message(message['data']['incident']),
+                    '#1s-and-0s', 'Pager Parrot', ':parrot:')
+                pagerduty_ids_seen.add(message['id'])
 
 
 app = webapp2.WSGIApplication([
