@@ -53,9 +53,9 @@ def _callsigns_from_repo_urls(repo_urls):
 # channels. These channels will be notified, in addition to #1s-and-0s,
 # when interesting activity happens. You do not need the initial "Khan/".
 GITHUB_CHANNEL_MAP = {
-    'iOS': {'#mobile'},
-    'android': {'#mobile'},
-    'mobile-client-webview-resources': {'#mobile'},
+    'iOS': {'#mobile-1s-and-0s'},
+    'android': {'#mobile-1s-and-0s'},
+    'mobile-client-webview-resources': {'#mobile-1s-and-0s'},
     'Early-Math-Prototypes': {'#early-math'},
     'slacker-cow': {'#hipslack'},
     'jenkins-tools': {'#hipslack'},
