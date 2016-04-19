@@ -168,10 +168,10 @@ class PhabFox(webapp2.RequestHandler):
 
 
 _PAGER_PARROT_BASE_MESSAGE = (
-        "{at_mention}Oh no! {priority} <{url}|incident #{number}> opened in "
-        "PagerDuty. I'll {action} to make sure someone is looking at it. See "
-        "<http://911.khanacademy.org/|the 911 docs> for more information "
-        "on these alerts.")
+    "{at_mention}Oh no! {priority} <{url}|incident #{number}> opened in "
+    "PagerDuty: {summary}. I'll {action} to make sure someone is looking at "
+    "it. See <http://911.khanacademy.org/|the 911 docs> for more information "
+    "on these alerts.")
 
 
 _PAGER_PARROT_CHANNELS = ['#1s-and-0s', '#support']
@@ -179,6 +179,8 @@ _PAGER_PARROT_CHANNELS = ['#1s-and-0s', '#support']
 
 def _pager_parrot_message(incident, channel):
     now = datetime.datetime.now(pytz.timezone('US/Pacific'))
+    summary = (incident.get('trigger_summary_data', {})
+               .get('subject', '<no summary available>'))
 
     if incident['urgency'] == 'high':
         at_mention = '@channel '
@@ -197,7 +199,7 @@ def _pager_parrot_message(incident, channel):
 
     return _PAGER_PARROT_BASE_MESSAGE.format(
         at_mention=at_mention, priority=priority, url=incident['html_url'],
-        number=incident['incident_number'], action=action)
+        number=incident['incident_number'], summary=summary, action=action)
 
 
 # Add me as an outgoing webhook for a service in PagerDuty.
