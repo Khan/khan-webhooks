@@ -78,6 +78,17 @@ GITHUB_CHANNEL_MAP = {
 }
 
 
+USER_CHANNEL_MAP = {
+    'benkomalo': {'#x-on-mobile-eng'},
+    'charlie': {'#x-on-mobile-eng'},
+    'david': {'#x-on-mobile-eng'},
+    'jared': {'#x-on-mobile-eng'},
+    'kevinb': {'#x-on-mobile-eng'},
+    'nacho': {'#x-on-mobile-eng'},
+    'nrowe': {'#x-on-mobile-eng'},
+}
+
+
 # Phabricator only gives us callsigns, so map these once and be done with it.
 CALLSIGN_CHANNEL_MAP = {}
 
@@ -145,10 +156,11 @@ class PhabFox(webapp2.RequestHandler):
 
             if match:
                 url = "%s/%s" % (secrets.phabricator_host, match.group('code'))
+                author = match.group('who')
                 message = u':phabricator: <%s|%s>: %s (%s by %s)' % (
                     url, match.group('code'),
                     match.group('description'),
-                    match.group('action'), match.group('who'))
+                    match.group('action'), author)
 
                 repo_phid = _repository_phid_from_diff_id(
                     int(match.group('code')[1:]))
@@ -158,10 +170,16 @@ class PhabFox(webapp2.RequestHandler):
 
                 _send_to_slack(message, '#1s-and-0s-commits',
                                'Phabricator Fox', ':fox:')
-                for extra_channel in CALLSIGN_CHANNEL_MAP.get(
-                        repo_callsign, []):
-                    _send_to_slack(message, extra_channel, 'Phabricator Fox',
-                                   ':fox:')
+                extra_channels = set()
+                for channel in CALLSIGN_CHANNEL_MAP.get(repo_callsign, []):
+                    extra_channels.add(channel)
+
+                for channel in USER_CHANNEL_MAP.get(author, []):
+                    extra_channels.add(channel)
+
+                for channel in extra_channels:
+                    _send_to_slack(
+                            message, channel, 'Phabricator Fox', ':fox:')
 
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('OK')
