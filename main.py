@@ -69,7 +69,7 @@ GITHUB_CHANNEL_MAP = {
     'KaTeX': {'#content-tools'},
     'khan-exercises': {'#content-tools'},
     'mathquill': {'#content-tools'},
-    'perseus': {'#content-tools'},
+    'perseus': {'#content-tools', '#mobile-1s-and-0s', '#x-on-mobile-eng'},
     'perseus-one': {'#content-tools'},
     'RCSS': {'#content-tools'},
     'react-components': {'#content-tools'},
