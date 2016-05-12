@@ -192,7 +192,13 @@ _PAGER_PARROT_BASE_MESSAGE = (
     "on these alerts.")
 
 
-_PAGER_PARROT_CHANNELS = ['#1s-and-0s', '#support']
+# This is used when alerting channels that don't have KA employees in them
+_PAGER_PARROT_THIRD_PARTY_BASE_MESSAGE = (
+    "@here {priority} <incident #{number}> opened in PagerDuty: "
+    "{summary}. The KA dev team has been alerted.")
+
+
+_PAGER_PARROT_CHANNELS = ['#1s-and-0s', '#support', '#volunteer-guides']
 
 
 def _pager_parrot_message(incident, channel):
@@ -215,7 +221,11 @@ def _pager_parrot_message(incident, channel):
         priority = 'P0'
         action = 'text and email the person on-ping'
 
-    return _PAGER_PARROT_BASE_MESSAGE.format(
+    base_message = (_PAGER_PARROT_THIRD_PARTY_BASE_MESSAGE
+                    if channel == '#volunteer-guides' else
+                    _PAGER_PARROT_BASE_MESSAGE)
+
+    return base_message.format(
         at_mention=at_mention, priority=priority, url=incident['html_url'],
         number=incident['incident_number'], summary=summary, action=action)
 
