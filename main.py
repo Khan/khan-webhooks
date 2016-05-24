@@ -198,7 +198,8 @@ _PAGER_PARROT_THIRD_PARTY_BASE_MESSAGE = (
     "{summary}. The KA dev team has been alerted.")
 
 
-_PAGER_PARROT_CHANNELS = ['#1s-and-0s', '#support', '#volunteer-guides']
+_PAGER_PARROT_CHANNELS = ['#1s-and-0s', '#support', '#volunteer-guides', 
+                          '#content']
 
 
 def _pager_parrot_message(incident, channel):
