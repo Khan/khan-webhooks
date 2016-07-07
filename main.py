@@ -1,9 +1,9 @@
-import datetime
 import json
 import logging
 import re
 import sys
 
+import pager_parrot
 import webapp2
 
 try:
@@ -15,7 +15,6 @@ except ImportError:
 
 sys.path.insert(1, 'third_party')
 from third_party import phabricator
-from third_party.pytz.gae import pytz
 from third_party import requests
 
 
@@ -185,52 +184,6 @@ class PhabFox(webapp2.RequestHandler):
         self.response.write('OK')
 
 
-_PAGER_PARROT_BASE_MESSAGE = (
-    "{at_mention}Oh no! {priority} <{url}|incident #{number}> opened in "
-    "PagerDuty: {summary}. I'll {action} to make sure someone is looking at "
-    "it. See <http://911.khanacademy.org/|the 911 docs> for more information "
-    "on these alerts.")
-
-
-# This is used when alerting channels that don't have KA employees in them
-_PAGER_PARROT_THIRD_PARTY_BASE_MESSAGE = (
-    "@here {priority} <incident #{number}> opened in PagerDuty: "
-    "{summary}. The KA dev team has been alerted.")
-
-
-_PAGER_PARROT_CHANNELS = ['#1s-and-0s', '#support', '#volunteer-guides', 
-                          '#content']
-
-
-def _pager_parrot_message(incident, channel):
-    now = datetime.datetime.now(pytz.timezone('US/Pacific'))
-    summary = (incident.get('trigger_summary_data', {})
-               .get('subject', '<no summary available>'))
-
-    if incident['urgency'] == 'high':
-        at_mention = '@channel '
-        priority = 'P911'
-        action = 'start calling the P911 list'
-    elif now.weekday() < 5:
-        # for a P0, if it's a weekday, @channel in #support, but not in
-        # #1s-and-0s
-        at_mention = '@channel ' if channel == '#support' else ''
-        priority = 'P0'
-        action = 'text and email the support DRI'
-    else:
-        at_mention = ''
-        priority = 'P0'
-        action = 'text and email the person on-ping'
-
-    base_message = (_PAGER_PARROT_THIRD_PARTY_BASE_MESSAGE
-                    if channel == '#volunteer-guides' else
-                    _PAGER_PARROT_BASE_MESSAGE)
-
-    return base_message.format(
-        at_mention=at_mention, priority=priority, url=incident['html_url'],
-        number=incident['incident_number'], summary=summary, action=action)
-
-
 # Add me as an outgoing webhook for a service in PagerDuty.
 # See http://911.khanacademy.org/ for details.
 class PagerParrot(webapp2.RequestHandler):
@@ -247,9 +200,9 @@ class PagerParrot(webapp2.RequestHandler):
                     message['type'] == 'incident.trigger'):
                 # Only trigger if we haven't seen the message, and if it's a
                 # trigger, rather than an acknowledgement or resolve.
-                for channel in _PAGER_PARROT_CHANNELS:
+                for channel in pager_parrot.CHANNELS:
                     _send_to_slack(
-                        _pager_parrot_message(
+                        pager_parrot.format_message(
                             message['data']['incident'], channel),
                         channel, 'Pager Parrot', ':parrot:')
                 pagerduty_ids_seen.add(message['id'])
