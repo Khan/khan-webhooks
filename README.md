@@ -10,8 +10,4 @@ and setting the phabricator_certificate field to be the value from
 Also fill in slack_webhook_url, taking the value from 'show secret' at
     https://phabricator.khanacademy.org/K94
 
-You can then deploy by running:
-```
-gcloud preview app deploy app.yaml \
-    --project khan-webhooks --version 1 --promote
-```
+You can then deploy by running `make deploy`.
