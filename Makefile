@@ -3,15 +3,16 @@ help:
 	@echo "Targets (e.g., 'make test'):"
 	@echo
 	@echo "   deps: initialize dependencies"
-	@echo "   test: run some tests"
+	@echo "   check: run some tests"
+	@echo "   test: run some tests (alias for 'check')"
 	@echo "   deploy: deploy to App Engine"
 
 .PHONY: deps
 deps:
 	git submodule update --init --recursive
 
-.PHONY: test
-test: deps  # it's cheap enough to init submodules in this repo
+.PHONY: check test
+check test: deps  # it's cheap enough to init submodules in this repo
 	python pager_parrot_test.py
 
 .PHONY: deploy
