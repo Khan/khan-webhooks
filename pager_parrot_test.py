@@ -119,6 +119,11 @@ class PagerParrotConfigurationTest(unittest.TestCase):
     These may fail if you update the configuration; just update them, too.
     """
 
+    def test_no_newlines_in_base_messages(self):
+        # These are just a bit annoying in Slack.
+        for base_message in pager_parrot._BASE_MESSAGES.viewvalues():
+            self.assertNotIn('\n', base_message)
+
     def test_1s0s_and_support_configured(self):
         for channel in ('#1s-and-0s', '#support'):
             self.assertIn(channel, pager_parrot.CHANNELS)

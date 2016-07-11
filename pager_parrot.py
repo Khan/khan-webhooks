@@ -15,20 +15,26 @@ Configuration = collections.namedtuple('Configuration',
                                         'low_priority_action',
                                         ))
 
-
 # Values for channel_type.
 # Different types of channels: what kind of message do we deliver?
 _FIRST_PARTY = 'ChannelType[_FIRST_PARTY]'
 _THIRD_PARTY = 'ChannelType[_THIRD_PARTY]'
+
+
+def _preprocess_base_message(msg):
+    """Dedent and collapse newlines."""
+    return ' '.join(textwrap.dedent(msg.strip()).split('\n'))
+
+
 _BASE_MESSAGES = {
-    _FIRST_PARTY: textwrap.dedent(
+    _FIRST_PARTY: _preprocess_base_message(
         """\
         {at_mention}Oh no! {priority} <{url}|incident #{number}> opened
         in PagerDuty: {summary}. I'll {next_steps} to make sure someone is
         looking at it. See <http://911.khanacademy.org/|the 911 docs> for more
         information on these alerts.
         """),
-    _THIRD_PARTY: textwrap.dedent(
+    _THIRD_PARTY: _preprocess_base_message(
         """\
         {at_mention}{priority} <incident #{number}> opened in PagerDuty:
         {summary}. The KA dev team has been alerted.
