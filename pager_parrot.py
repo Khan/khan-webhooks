@@ -76,7 +76,7 @@ CHANNELS = {
                       high_priority_action=_SUPPRESS_PING,
                       medium_priority_action=_SUPPRESS_PING,
                       low_priority_action=_SUPPRESS_PING),
-    '#volunteer_guides':
+    '#volunteer-guides':
         Configuration(channel_type=_THIRD_PARTY,
                       high_priority_action=_PING_WITH_AT_HERE,
                       medium_priority_action=_PING_WITH_AT_HERE,
