@@ -23,7 +23,7 @@ _THIRD_PARTY = 'ChannelType[_THIRD_PARTY]'
 
 def _preprocess_base_message(msg):
     """Dedent and collapse newlines."""
-    return ' '.join(textwrap.dedent(msg.strip()).split('\n'))
+    return ' '.join(textwrap.dedent(msg).strip().split('\n'))
 
 
 _BASE_MESSAGES = {
