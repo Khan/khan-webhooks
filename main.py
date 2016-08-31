@@ -79,13 +79,6 @@ GITHUB_CHANNEL_MAP = {
 
 
 USER_CHANNEL_MAP = {
-    'benkomalo': {'#x-on-mobile-eng'},
-    'charlie': {'#x-on-mobile-eng'},
-    'david': {'#x-on-mobile-eng'},
-    'jared': {'#x-on-mobile-eng'},
-    'kevinb': {'#x-on-mobile-eng'},
-    'nacho': {'#x-on-mobile-eng'},
-    'nrowe': {'#x-on-mobile-eng'},
 }
 
 
