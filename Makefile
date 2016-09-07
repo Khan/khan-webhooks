@@ -18,4 +18,4 @@ check test: deps  # it's cheap enough to init submodules in this repo
 .PHONY: deploy
 deploy: deps
 	[ -s secrets.py ] || { echo "Set up secrets.py as per README.md"; exit 1; }
-	gcloud preview app deploy app.yaml --project khan-webhooks --version 1 --promote
+	gcloud app deploy app.yaml --project khan-webhooks --version 1 --promote
