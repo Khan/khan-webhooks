@@ -191,13 +191,16 @@ class PagerParrot(webapp2.RequestHandler):
         global pagerduty_ids_seen
         for message in payload['messages']:
             if (message['id'] not in pagerduty_ids_seen and
-                    message['type'] == 'incident.trigger'):
+                    message['type'] == 'incident.trigger'
+                    ):
+                should_ping = pager_parrot.consider_ping()
                 # Only trigger if we haven't seen the message, and if it's a
                 # trigger, rather than an acknowledgement or resolve.
                 for channel in pager_parrot.CHANNELS:
                     _send_to_slack(
                         pager_parrot.format_message(
-                            message['data']['incident'], channel),
+                            message['data']['incident'], channel,
+                            should_ping=should_ping),
                         channel, 'Pager Parrot', ':parrot:')
                 pagerduty_ids_seen.add(message['id'])
 

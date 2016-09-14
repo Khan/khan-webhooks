@@ -21,6 +21,49 @@ _FIRST_PARTY = 'ChannelType[_FIRST_PARTY]'
 _THIRD_PARTY = 'ChannelType[_THIRD_PARTY]'
 
 
+# Globals and constants for consider_ping
+_last_ping = datetime.datetime.min
+_last_message = datetime.datetime.min
+_PING_AFTER_MESSAGE_TIMEOUT = datetime.timedelta(minutes=30)
+_PING_AFTER_PING_TIMEOUT = datetime.timedelta(hours=3)
+
+
+def consider_ping():
+    """Consider whether to @channel for a Pager Parrot message now.
+
+    If there are a bunch of distinct alerts in a short period of time,
+    we deduplicate those, and only @channel on the first one "recently".
+
+    This function updates the times we last did an @channel, and the times we
+    last sent a message, and returns True if we should do an @channel this
+    time.  If you call this, you promise to @channel if it tells you so.
+
+    We'll skip the @channel if there's been a message in the
+    last 30 minutes, and an @channel in the last 3 hours.  We do it this way so
+    that a long-running incident that alerts every 10 minutes won't result in a
+    bunch of @channels, but an incident that is resolved, and then recurs a few
+    hours later, will.
+
+    Like main.pagerduty_ids_seen, we just keep this in instance memory, because
+    a false positive occasionally is way better than Pager Parrot crashing
+    because it can't talk to the datastore.
+    """
+    global _last_ping
+    global _last_message
+    now = datetime.datetime.now()
+
+    will_ping = not (
+        # Skip a ping if our last message *and* last ping were recent.
+        now - _last_message < _PING_AFTER_MESSAGE_TIMEOUT and
+        now - _last_ping < _PING_AFTER_PING_TIMEOUT)
+
+    _last_message = now
+    if will_ping:
+        _last_ping = now
+
+    return will_ping
+
+
 def _preprocess_base_message(msg):
     """Dedent and collapse newlines."""
     return ' '.join(textwrap.dedent(msg).strip().split('\n'))
@@ -84,7 +127,7 @@ CHANNELS = {
 }
 
 
-def format_message(incident, channel):
+def format_message(incident, channel, should_ping=True):
     summary = (incident.get('trigger_summary_data', {})
                .get('subject', '<no summary available>'))
 
@@ -98,8 +141,8 @@ def format_message(incident, channel):
 
     priority = 'P911' if is_p911 else 'P0'
 
-    action = (high_priority_action if is_p911 else
-              medium_priority_action if is_weekday else
+    action = (high_priority_action if is_p911 and should_ping else
+              medium_priority_action if is_weekday and should_ping else
               low_priority_action)
     (at_mention, next_steps) = _ACTIONS[action]
 
