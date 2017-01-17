@@ -146,7 +146,7 @@ class PhabFox(webapp2.RequestHandler):
                 'PhabricatorApplicationTransactionFeedStory'):
             match = re.match(
                 r"^(?P<who>[a-zA-Z0-9.]+) (?P<action>created|abandoned) "
-                r"(?P<code>D[0-9]+): (?P<description>.*)\.$",
+                r"(an object:)? (?P<code>D[0-9]+): (?P<description>.*)\.$",
                 self.request.get('storyText'))
 
             if match:
