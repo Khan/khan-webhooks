@@ -11,3 +11,5 @@ Also fill in slack_webhook_url, taking the value from 'show secret' at
     https://phabricator.khanacademy.org/K94
 
 You can then deploy by running `make deploy`.
+
+You can view the logs at https://console.cloud.google.com/logs/viewer?project=khan-webhooks

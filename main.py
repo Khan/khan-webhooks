@@ -162,6 +162,10 @@ class PhabFox(webapp2.RequestHandler):
                 repo_callsign = None
                 if repo_phid:
                     repo_callsign = _callsign_from_repository_phid(repo_phid)
+                    if not repo_callsign:
+                        logging.info(
+                                "Unable to determine repo callsign for %s" %
+                                repo_phid)
 
                 _send_to_slack(message, '#1s-and-0s-commits',
                                'Phabricator Fox', ':fox:')
@@ -175,6 +179,12 @@ class PhabFox(webapp2.RequestHandler):
                 for channel in extra_channels:
                     _send_to_slack(
                             message, channel, 'Phabricator Fox', ':fox:')
+            else:
+                logging.info("Story text didn't match regexp. Text was: %s" %
+                        self.request.get('storyText'))
+        else:
+            logging.info("Ignoring unknown story type: %s" %
+                    self.request.get('storyType'))
 
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('OK')
