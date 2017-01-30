@@ -14,6 +14,7 @@ deps:
 .PHONY: check test
 check test: deps  # it's cheap enough to init submodules in this repo
 	python pager_parrot_test.py
+	python phabricator_fox_test.py
 
 .PHONY: deploy
 deploy: deps

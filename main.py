@@ -4,6 +4,7 @@ import re
 import sys
 
 import pager_parrot
+import phabricator_fox
 import webapp2
 
 try:
@@ -145,8 +146,7 @@ class PhabFox(webapp2.RequestHandler):
         if (self.request.get('storyType') ==
                 'PhabricatorApplicationTransactionFeedStory'):
             match = re.match(
-                r"^(?P<who>[a-zA-Z0-9.]+) (?P<action>created|abandoned) "
-                r"(an object:)? (?P<code>D[0-9]+): (?P<description>.*)\.$",
+                phabricator_fox.MESSAGE_RX,
                 self.request.get('storyText'))
 
             if match:
