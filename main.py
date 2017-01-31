@@ -80,8 +80,6 @@ GITHUB_CHANNEL_MAP = {
 
 
 USER_CHANNEL_MAP = {
-    'david': {'#onboarding'},
-    'jordan': {'#onboarding'},
 }
 
 
