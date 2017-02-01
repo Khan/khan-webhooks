@@ -1,0 +1,6 @@
+{
+    "project_id": "khan-webhooks",
+    "conduit_uri": "https://phabricator.khanacademy.org/",
+    "lint.engine": "ArcanistConfigurationDrivenLintEngine"
+}
+
