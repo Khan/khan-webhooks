@@ -88,6 +88,7 @@ USER_CHANNEL_MAP = {
     'diedra': {'#il-eng'},
     'eliana': {'#il-eng'},
     'jared': {'#il-eng'},
+    'kairui': {'#il-eng'},
     'kevinb': {'#il-eng'},
     'riley': {'#il-eng'},
 }
