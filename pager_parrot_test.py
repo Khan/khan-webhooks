@@ -125,28 +125,25 @@ class PagerParrotConfigurationTest(unittest.TestCase):
             self.assertNotIn('\n', base_message)
             self.assertEquals(len(base_message.split('  ')), 1, base_message)
 
-    def test_1s0s_and_support_configured(self):
-        for channel in ('#1s-and-0s', '#support'):
-            self.assertIn(channel, pager_parrot.CHANNELS)
+    def test_1s0s_configured(self):
+        self.assertIn('#1s-and-0s', pager_parrot.CHANNELS)
 
-    def test_p911_pings_channel_in_1s0s_and_support_on_weekday(self):
+    def test_p911_pings_channel_in_1s0s_on_weekday(self):
         incident = self._urgent_incident()
         with _mocking_weekday():
-            for channel in ('#1s-and-0s', '#support'):
-                result = pager_parrot.format_message(incident, channel)
-                self.assertIn('@channel', result)
+            result = pager_parrot.format_message(incident, '#1s-and-0s')
+            self.assertIn('@channel', result)
 
-    def test_p911_pings_channel_in_1s0s_and_support_on_weekend(self):
+    def test_p911_pings_channel_in_1s0s_on_weekend(self):
         incident = self._urgent_incident()
         with _mocking_weekend():
-            for channel in ('#1s-and-0s', '#support'):
-                result = pager_parrot.format_message(incident, channel)
-                self.assertIn('@channel', result)
+            result = pager_parrot.format_message(incident, '#1s-and-0s')
+            self.assertIn('@channel', result)
 
-    def test_p0_pings_channel_in_support_on_weekday(self):
+    def test_p0_pings_channel_in_1s0s_on_weekday(self):
         incident = self._non_urgent_incident()
         with _mocking_weekday():
-            result = pager_parrot.format_message(incident, '#support')
+            result = pager_parrot.format_message(incident, '#1s-and-0s')
             self.assertIn('@channel', result)
 
     def _non_urgent_incident(self):

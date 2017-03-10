@@ -107,11 +107,6 @@ CHANNELS = {
     '#1s-and-0s':
         Configuration(channel_type=_FIRST_PARTY,
                       high_priority_action=_PING_WITH_AT_CHANNEL,
-                      medium_priority_action=_SUPPRESS_PING,
-                      low_priority_action=_SUPPRESS_PING),
-    '#support':
-        Configuration(channel_type=_FIRST_PARTY,
-                      high_priority_action=_PING_WITH_AT_CHANNEL,
                       medium_priority_action=_PING_WITH_AT_CHANNEL,
                       low_priority_action=_SUPPRESS_PING),
     '#content':
