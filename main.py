@@ -55,6 +55,7 @@ def _callsigns_from_repo_urls(repo_urls):
 GITHUB_CHANNEL_MAP = {
     'iOS': {'#mobile-1s-and-0s'},
     'android': {'#mobile-1s-and-0s'},
+    'mobile': {'#mobile-1s-and-0s'},
     'mobile-client-webview-resources': {'#mobile-1s-and-0s'},
     'hivemind': {'#long-term-research'},
     'Cantor': {'#long-term-research'},
