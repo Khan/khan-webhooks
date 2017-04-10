@@ -82,12 +82,10 @@ GITHUB_CHANNEL_MAP = {
 
 
 USER_CHANNEL_MAP = {
-    'amyciavolino': {'#il-eng'},
     'benkomalo': {'#il-eng'},
     'bryan': {'#il-eng'},
     'charlie': {'#il-eng'},
     'diedra': {'#il-eng'},
-    'eliana': {'#il-eng'},
     'jared': {'#il-eng'},
     'joshua': {'#il-eng'},
     'kairui': {'#il-eng'},
