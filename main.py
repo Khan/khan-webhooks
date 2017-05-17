@@ -84,6 +84,7 @@ GITHUB_CHANNEL_MAP = {
 
 
 USER_CHANNEL_MAP = {
+    'abdulrahman': {'#il-eng'},
     'benkomalo': {'#il-eng'},
     'bryan': {'#il-eng'},
     'charlie': {'#il-eng'},
@@ -93,6 +94,7 @@ USER_CHANNEL_MAP = {
     'kairui': {'#il-eng'},
     'kevinb': {'#il-eng'},
     'riley': {'#il-eng'},
+    'veena': {'#il-eng'},
 }
 
 
