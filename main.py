@@ -94,6 +94,7 @@ USER_CHANNEL_MAP = {
     'kairui': {'#il-eng'},
     'kevinb': {'#il-eng'},
     'riley': {'#il-eng'},
+    'sophiemori': {'#il-eng'},
     'veena': {'#il-eng'},
 }
 
