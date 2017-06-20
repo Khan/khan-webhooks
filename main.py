@@ -88,6 +88,7 @@ USER_CHANNEL_MAP = {
     'benkomalo': {'#il-eng'},
     'bryan': {'#il-eng'},
     'charlie': {'#il-eng'},
+    'cora': {'#il-eng'},
     'diedra': {'#il-eng'},
     'jared': {'#il-eng'},
     'joshua': {'#il-eng'},
