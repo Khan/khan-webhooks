@@ -89,7 +89,7 @@ USER_CHANNEL_MAP = {
     'amos': {'#coached-eng'},
     'anesu': {'#coached-eng'},
     'benkomalo': {'#il-eng'},
-    'briangenisio': {'#coached-eng'},
+    'briangenisio': {'#coached-eng', '#il-eng'},
     'bryan': {'#il-eng'},
     'charlie': {'#il-eng'},
     'cora': {'#il-eng'},
