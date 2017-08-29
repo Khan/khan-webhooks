@@ -86,6 +86,7 @@ GITHUB_CHANNEL_MAP = {
 USER_CHANNEL_MAP = {
     'abdulrahman': {'#il-eng'},
     'alex': {'#coached-eng'},
+    'alice': {'#coached-eng'},
     'briangenisio': {'#il-eng'},
     'bryan': {'#il-eng'},
     'cora': {'#il-eng'},
@@ -103,6 +104,7 @@ USER_CHANNEL_MAP = {
     'mopewa': {'#coached-eng'},
     'nrowe': {'#coached-eng'},
     'riley': {'#il-eng'},
+    'scottgrant': {'#coached-eng'},
     'sean': {'#coached-eng'},
     'slim': {'#coached-eng'},
     'sophiemori': {'#il-eng'},
