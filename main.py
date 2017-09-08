@@ -62,7 +62,7 @@ GITHUB_CHANNEL_MAP = {
     'hivemind': {'#long-term-research'},
     'Cantor': {'#long-term-research'},
     'slacker-cow': {'#hipslack'},
-    'jenkins-tools': {'#hipslack'},
+    'jenkins-jobs': {'#hipslack'},
     'culture-cow': {'#hipslack'},
     'khan-webhooks': {'#hipslack'},
 
