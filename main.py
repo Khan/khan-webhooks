@@ -94,6 +94,7 @@ USER_CHANNEL_MAP = {
     'diedra': {'#il-eng'},
     'emilyling': {'#coached-eng'},
     'hannah': {'#coached-eng'},
+    'idr': {'#il-eng'},
     'jared': {'#il-eng'},
     'jangmi': {'#coached-eng'},
     'john': {'#coached-eng'},
