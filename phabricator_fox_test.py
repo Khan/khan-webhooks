@@ -14,6 +14,8 @@ CREATED_TEXT = ("amy created D33337: "
                 "Separate out item attempts from task completion.")
 ADDED_REVIEWER = ("amy added a reviewer for D33318: "
             "Update hover interaction to match the spec: kimerie.")
+REQUESTED_REVIEW = ("dhruv requested review of D41797: Increase "
+                    "email spam time limit for devserver.")
 
 
 class PagerParrotLogicTest(unittest.TestCase):
@@ -28,6 +30,10 @@ class PagerParrotLogicTest(unittest.TestCase):
     def test_abandoned_message(self):
         match = re.match(phabricator_fox.MESSAGE_RX, ADDED_REVIEWER)
         self.assertIsNone(match)
+
+    def test_requested_review(self):
+        match = re.match(phabricator_fox.MESSAGE_RX, REQUESTED_REVIEW)
+        self.assertIsNotNone(match)
 
 
 if __name__ == '__main__':
