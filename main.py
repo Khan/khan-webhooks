@@ -102,6 +102,7 @@ USER_CHANNEL_MAP = {
     'kevinb': {'#il-eng'},
     'nrowe': {'#classroom-eng'},
     'riley': {'#il-eng'},
+    'samuel': {'#classroom-eng'},
     'sean': {'#classroom-eng'},
     'sophiemori': {'#il-eng'},
     'veena': {'#il-eng'},
