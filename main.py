@@ -96,7 +96,7 @@ USER_CHANNEL_MAP = {
     'idr': {'#il-eng'},
     'jared': {'#il-eng'},
     'jangmi': {'#classroom-eng'},
-    'joshua': {'#il-eng'},
+    'joshua': {'#classroom-eng'},
     'kairui': {'#il-eng'},
     'kasrakoushan': {'#il-eng'},
     'kevinb': {'#il-eng'},
