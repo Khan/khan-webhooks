@@ -27,7 +27,7 @@ class PagerParrotLogicTest(unittest.TestCase):
         match = re.match(phabricator_fox.MESSAGE_RX, ABANDONED_TEXT)
         self.assertIsNotNone(match)
 
-    def test_abandoned_message(self):
+    def test_added_reviewer(self):
         match = re.match(phabricator_fox.MESSAGE_RX, ADDED_REVIEWER)
         self.assertIsNone(match)
 
