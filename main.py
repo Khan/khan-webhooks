@@ -100,6 +100,7 @@ USER_CHANNEL_MAP = {
     'kairui': {'#il-eng'},
     'kasrakoushan': {'#il-eng'},
     'kevinb': {'#il-eng'},
+    'miguel': {'#classroom-eng'},
     'nrowe': {'#classroom-eng'},
     'riley': {'#il-eng'},
     'samuel': {'#classroom-eng'},
