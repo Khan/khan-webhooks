@@ -98,15 +98,12 @@ USER_CHANNEL_MAP = {
     'jangmi': {'#classroom-eng'},
     'joshua': {'#classroom-eng'},
     'kairui': {'#il-eng'},
-    'kasrakoushan': {'#il-eng'},
     'kevinb': {'#il-eng'},
     'miguel': {'#classroom-eng'},
+    'mita': {'#classroom-eng'},
     'nrowe': {'#classroom-eng'},
-    'riley': {'#il-eng'},
     'samuel': {'#classroom-eng'},
     'sean': {'#classroom-eng'},
-    'sophiemori': {'#il-eng'},
-    'veena': {'#il-eng'},
 }
 
 
