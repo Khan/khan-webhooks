@@ -92,6 +92,7 @@ USER_CHANNEL_MAP = {
     'cora': {'#il-eng'},
     'dhruv': {'#classroom-eng'},
     'diedra': {'#il-eng'},
+    'erik': {'#classroom-eng'},
     'hannah': {'#classroom-eng'},
     'idr': {'#il-eng'},
     'jared': {'#il-eng'},
