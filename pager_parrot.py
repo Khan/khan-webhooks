@@ -66,21 +66,25 @@ def consider_ping():
 
 def _preprocess_base_message(msg):
     """Dedent and collapse newlines."""
-    return ' '.join(textwrap.dedent(msg).strip().split('\n'))
+    return ' '.join(
+        textwrap.dedent(msg).strip().split('\n')).replace('\\n', '\n')
 
 
 _BASE_MESSAGES = {
     _FIRST_PARTY: _preprocess_base_message(
         """\
         {at_mention}Oh no! {priority} <{url}|incident #{number}> opened
-        in PagerDuty: {summary}. I'll {next_steps} to make sure someone is
-        looking at it. See <http://911.khanacademy.org/|the 911 docs> for more
-        information on these alerts.
+        in PagerDuty:
+        \\n> {summary}\\n
+        I'll {next_steps} to make sure someone is looking at it. See
+        <http://911.khanacademy.org/|the 911 docs> for more information
+        on these alerts.
         """),
     _THIRD_PARTY: _preprocess_base_message(
         """\
-        {at_mention}{priority} <incident #{number}> opened in PagerDuty:
-        {summary}. The KA dev team has been alerted.
+        {at_mention}{priority} incident #{number} opened in PagerDuty:
+        \\n> {summary}\\n
+        The KA dev team has been alerted.
         """),
 }
 
@@ -123,8 +127,13 @@ CHANNELS = {
 
 
 def format_message(incident, channel, should_ping=True):
-    summary = (incident.get('trigger_summary_data', {})
-               .get('subject', '<no summary available>'))
+    trigger_summary_data = incident.get('trigger_summary_data', {})
+
+    summary = '<no summary available>'
+    if 'subject' in trigger_summary_data:
+        summary = trigger_summary_data['subject']
+    if 'description' in trigger_summary_data:
+        summary = trigger_summary_data['description']
 
     (channel_type,
      high_priority_action,
