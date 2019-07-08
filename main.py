@@ -164,6 +164,12 @@ def _send_to_slack(message, channel, username, icon_emoji):
                   data={'payload': json.dumps(post_data)})
 
 
+class PhabricatorFox(webapp2.RequestHandler):
+    def post(self):
+        logging.info("Testing new endpoint")
+        logging.info("Processing %s" % self.request.body)
+
+
 # Add me to feed.http-hooks in Phabricator config
 class PhabFox(webapp2.RequestHandler):
     def post(self):
@@ -243,6 +249,7 @@ class PagerParrot(webapp2.RequestHandler):
 
 
 app = webapp2.WSGIApplication([
+    ('/new-phabricator-feed', PhabricatorFox),
     ('/phabricator-feed', PhabFox),
     ('/pagerduty-feed', PagerParrot),
 ])
