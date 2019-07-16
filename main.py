@@ -176,6 +176,14 @@ def _build_slack_message(phid_info, transaction_type, author_phid):
     return message
 
 
+def _get_author_username(author_phid):
+    phab = _get_phabricator()
+    constraints = {"phids": [author_phid]}
+    resp = phab.phid.user.search(constraints=constraints).response
+    if resp:
+        return resp['data'][0]['fields']['username']
+
+
 class PhabricatorFox(webapp2.RequestHandler):
     """Handler that is run when `new-phabricator-feed` is triggered.
 
@@ -187,59 +195,65 @@ class PhabricatorFox(webapp2.RequestHandler):
         logging.info("Processing %s" % self.request.body)
         request_body = json.loads(self.request.body)
         phid = request_body['object']['phid']
+        if not request_body['transactions']:
+            # For closing a diff, the transaction list is empty,
+            # so we mark it as 'OK' and exit out of the post function
+            self.response.headers['Content-Type'] = 'text/plain'
+            self.response.write('OK')
+            return
         phid_map = {
             'phids': [t['phid'] for t in request_body['transactions']]
         }
         phab = _get_phabricator()
         resp = phab.phid.transaction.search(
             objectIdentifier=phid, constraints=phid_map).response
-        if resp:
-            data = resp['data']
-            for transaction in data:
-                trans_type = transaction.get('type')
-                if trans_type not in ['create', 'abandon']:
+        if not resp:
+            logging.info("No response found for phid: %s" % (phid))
+            self.response.set_status(404)
+            return
+        data = resp['data']
+        for transaction in data:
+            trans_type = transaction.get('type')
+            if trans_type not in ['create', 'abandon']:
+                logging.info(
+                    "Transaction %s not a match. Skipping!" % trans_type)
+                continue
+            author_phid = transaction['authorPHID']
+            logging.info("Transaction type: %s" % (trans_type))
+            phid_query = phab.phid.phid.query(phids=[phid]).response
+            # Since we're only passing in 1 phid, there should only be
+            # one (key, value) pair returned. We are only interested
+            # in the value.
+            if not phid_query:
+                logging.info("No info found for %s" % (phid))
+                continue
+            phid_info = phid_query.values()[0]
+            author = _get_author_username(author_phid)
+            message = _build_slack_message(phid_info, trans_type, author)
+            # If phid_info['name'] returns D123, 123 is the repository
+            # PHID, so we remove the first character
+            repo_phid = _repository_phid_from_diff_id(
+                int(phid_info['name'].lstrip('D')))
+            repo_callsign = None
+            if repo_phid:
+                repo_callsign = _callsign_from_repository_phid(repo_phid)
+                if not repo_callsign:
                     logging.info(
-                        "Transaction %s not a match. Skipping!" % trans_type)
-                    continue
-                author_phid = transaction['authorPHID']
-                logging.info("Transaction type: %s" % (trans_type))
-                phid_query = phab.phid.phid.query(phids=[phid]).response
-                # Since we're only passing in 1 phid, there should only be
-                # one (key, value) pair returned. We are only interested
-                # in the value.
-                if not phid_query:
-                    logging.info("No info found for %s" % (phid))
-                    continue
-                phid_info = phid_query.values()[0]
-                message = _build_slack_message(
-                    phid_info, trans_type, author_phid)
-                # If phid_info['name'] returns D123, 123 is the
-                # repository PHID, so we remove the first
-                # character
-                repo_phid = _repository_phid_from_diff_id(
-                    int(phid_info['name'].lstrip('D')))
-                repo_callsign = None
-                if repo_phid:
-                    repo_callsign = _callsign_from_repository_phid(repo_phid)
-                    if not repo_callsign:
-                        logging.info(
-                            "Unable to get repo callsign for %s" % repo_phid)
+                        "Unable to get repo callsign for %s" % repo_phid)
 
-                _send_to_slack(
-                    message, '#bot-testing', 'Phabricator Fox', ':fox:')
-                extra_channels = set()
-                for channel in CALLSIGN_CHANNEL_MAP.get(repo_callsign, []):
-                    extra_channels.add(channel)
+            _send_to_slack(
+                message, '#bot-testing', 'Phabricator Fox', ':fox:')
+            extra_channels = set()
+            for channel in CALLSIGN_CHANNEL_MAP.get(repo_callsign, []):
+                extra_channels.add(channel)
 
-                for channel in USER_CHANNEL_MAP.get(author, []):
-                    extra_channels.add(channel)
+            for channel in USER_CHANNEL_MAP.get(author, []):
+                extra_channels.add(channel)
 
-                # TODO(cathy): Uncomment this part after verifying
-                # message is correct for channel in extra_channels:
-                #     _send_to_slack(
-                #         message, channel, 'Phabricator Fox', ':fox:')
-        else:
-            logging.info("No response found for this phid: %s" % (phid))
+            # TODO(cathy): Uncomment this part after verifying
+            # message is correct for channel in extra_channels:
+            #     _send_to_slack(
+            #         message, channel, 'Phabricator Fox', ':fox:')
 
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('OK')
