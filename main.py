@@ -185,9 +185,10 @@ class PhabricatorFox(webapp2.RequestHandler):
     """
     def post(self):
         logging.info("Processing %s" % self.request.body)
-        phid = self.request.body['object']['phid']
+        request_body = json.loads(self.request.body)
+        phid = request_body['object']['phid']
         phid_map = {
-            'phids': [t['phid'] for t in self.request['transactions']]
+            'phids': [t['phid'] for t in request_body['transactions']]
         }
         phab = _get_phabricator()
         resp = phab.phid.transaction.search(
