@@ -185,7 +185,7 @@ class PhabricatorFox(webapp2.RequestHandler):
     """
     def post(self):
         logging.info("Processing %s" % self.request.body)
-        phid = self.request['object']['phid']
+        phid = self.request.body['object']['phid']
         phid_map = {
             'phids': [t['phid'] for t in self.request['transactions']]
         }
@@ -272,8 +272,9 @@ class PhabFox(webapp2.RequestHandler):
                                 "Unable to determine repo callsign for %s" %
                                 repo_phid)
 
-                _send_to_slack(message, '#1s-and-0s-commits',
-                               'Phabricator Fox', ':fox:')
+                _send_to_slack(
+                    message, '#1s-and-0s-commits', 'Phabricator Fox', ':fox:')
+
                 extra_channels = set()
                 for channel in CALLSIGN_CHANNEL_MAP.get(repo_callsign, []):
                     extra_channels.add(channel)
