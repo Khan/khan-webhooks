@@ -257,7 +257,8 @@ class PhabricatorFox(webapp2.RequestHandler):
                         "Unable to get repo callsign for %s" % repo_phid)
 
             _send_to_slack(
-                message, '#bot-testing', 'Phabricator Fox', ':fox:')
+                message, '#1s-and-0s-commits', 'Phabricator Fox', ':fox:')
+
             extra_channels = set()
             for channel in CALLSIGN_CHANNEL_MAP.get(repo_callsign, []):
                 extra_channels.add(channel)
