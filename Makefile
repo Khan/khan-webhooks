@@ -1,3 +1,5 @@
+GOOGLE_SDK_ROOT=$(HOME)/google-cloud-sdk/
+
 .PHONY: help
 help:
 	@echo "Targets (e.g., 'make test'):"
@@ -13,8 +15,7 @@ deps:
 
 .PHONY: check test
 check test: deps  # it's cheap enough to init submodules in this repo
-	python pager_parrot_test.py
-	python phabricator_fox_test.py
+	python runner.py $(GOOGLE_SDK_ROOT)
 
 .PHONY: deploy
 deploy: deps

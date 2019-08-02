@@ -109,6 +109,11 @@ USER_CHANNEL_MAP = {
     'yash': {'#classroom-eng'},
 }
 
+ACTIONS_MAP = {
+    'create': 'created',
+    'abandon': 'abandoned'
+}
+
 
 # Phabricator only gives us callsigns, so map these once and be done with it.
 CALLSIGN_CHANNEL_MAP = {}
@@ -151,6 +156,12 @@ def _callsign_from_repository_phid(phid):
         return resp[0]['callsign']
 
 
+def _transaction_search_from_phids(phid, phid_map):
+    phab = _get_phabricator()
+    return phab.phid.transaction.search(
+        objectIdentifier=phid, constraints=phid_map).response
+
+
 def _send_to_slack(message, channel, username, icon_emoji):
     logging.info('Posting "%s" to %s in Slack' % (message, channel))
     post_data = {
@@ -172,7 +183,8 @@ def _build_slack_message(phid_info, transaction_type, author_phid):
     description = phid_info['fullName'].split(': ', 1)[-1]
     diff_id = phid_info['name']
     message = u':phabricator: <%s|%s>: %s (%s by %s)' % (
-        uri, diff_id, description, transaction_type, author_phid)
+        uri, diff_id, description,
+        ACTIONS_MAP[transaction_type], author_phid)
     return message
 
 
@@ -182,6 +194,11 @@ def _get_author_username(author_phid):
     resp = phab.phid.user.search(constraints=constraints).response
     if resp:
         return resp['data'][0]['fields']['username']
+
+
+def _phid_query_from_phid(phid):
+    phab = _get_phabricator()
+    return phab.phid.phid.query(phids=[phid]).response
 
 
 class PhabricatorFox(webapp2.RequestHandler):
@@ -204,9 +221,7 @@ class PhabricatorFox(webapp2.RequestHandler):
         phid_map = {
             'phids': [t['phid'] for t in request_body['transactions']]
         }
-        phab = _get_phabricator()
-        resp = phab.phid.transaction.search(
-            objectIdentifier=phid, constraints=phid_map).response
+        resp = _transaction_search_from_phids(phid, phid_map)
         if not resp:
             logging.info("No response found for phid: %s" % (phid))
             self.response.set_status(404)
@@ -220,7 +235,7 @@ class PhabricatorFox(webapp2.RequestHandler):
                 continue
             author_phid = transaction['authorPHID']
             logging.info("Transaction type: %s" % (trans_type))
-            phid_query = phab.phid.phid.query(phids=[phid]).response
+            phid_query = _phid_query_from_phid(phid)
             # Since we're only passing in 1 phid, there should only be
             # one (key, value) pair returned. We are only interested
             # in the value.
@@ -250,10 +265,8 @@ class PhabricatorFox(webapp2.RequestHandler):
             for channel in USER_CHANNEL_MAP.get(author, []):
                 extra_channels.add(channel)
 
-            # TODO(cathy): Uncomment this part after verifying
-            # message is correct for channel in extra_channels:
-            #     _send_to_slack(
-            #         message, channel, 'Phabricator Fox', ':fox:')
+            for channel in extra_channels:
+                _send_to_slack(message, channel, 'Phabricator Fox', ':fox:')
 
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('OK')
@@ -261,6 +274,15 @@ class PhabricatorFox(webapp2.RequestHandler):
 
 # Add me to feed.http-hooks in Phabricator config
 class PhabFox(webapp2.RequestHandler):
+    """Handler that sends PhabFox alerts for reviews being requested.
+
+    With the transition to the new Phabricator feed system, the
+    functionality to send messages when diffs are created or abandoned
+    have been moved to the PhabricatorFox handler (see above).
+    However, the new system doesn't have a good way of checking when
+    reviews are being requested, so we are keeping this handler to
+    do that until the old system has been completely deprecated.
+    """
     def post(self):
         logging.info("Processing %s" % self.request.arguments())
         if (self.request.get('storyType') ==
