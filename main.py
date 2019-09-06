@@ -92,7 +92,7 @@ USER_CHANNEL_MAP = {
     'bryan': {'#il-eng'},
     'boris': {'#reports-eng'},
     'cora': {'#il-eng', '#reports-eng'},
-    'dhruv': {'#classroom-eng', '#reports-eng'},
+    'dhruv': {'#classroom-eng'},
     'diedra': {'#il-eng'},
     'erik': {'#classroom-eng'},
     'hannah': {'#classroom-eng'},
@@ -105,7 +105,7 @@ USER_CHANNEL_MAP = {
     'mita': {'#classroom-eng'},
     'nrowe': {'#il-eng'},
     'samuel': {'#classroom-eng'},
-    'sean': {'#classroom-eng', '#reports-eng'},
+    'sean': {'#classroom-eng'},
     'yash': {'#classroom-eng'},
 }
 
