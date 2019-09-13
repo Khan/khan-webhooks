@@ -1,19 +1,7 @@
 """Pure utilities and configuration settings for Pager Parrot."""
-import collections
 import datetime
 import textwrap
-
-# A configuration object describing how a slack channel should respond to an
-# incident. The high-priority action will be taken for P911 incidents. The
-# medium-priority action will be taken for non-P911 incidents on weekdays. The
-# low-priority action will be taken for non-P911 incidents on weekends. See
-# below for the possible values of these fields.
-Configuration = collections.namedtuple('Configuration',
-                                       ('channel_type',
-                                        'high_priority_action',
-                                        'medium_priority_action',
-                                        'low_priority_action',
-                                        ))
+import threading
 
 # Values for channel_type.
 # Different types of channels: what kind of message do we deliver?
@@ -26,6 +14,47 @@ _last_ping = datetime.datetime.min
 _last_message = datetime.datetime.min
 _PING_AFTER_MESSAGE_TIMEOUT = datetime.timedelta(minutes=30)
 _PING_AFTER_PING_TIMEOUT = datetime.timedelta(hours=3)
+_CREATE_NEW_THREAD_TIMEOUT = datetime.timedelta(minutes=15)
+
+
+# A configuration object describing how a slack channel should respond to an
+# incident. The high-priority action will be taken for P911 incidents. The
+# medium-priority action will be taken for non-P911 incidents on weekdays. The
+# low-priority action will be taken for non-P911 incidents on weekends. See
+# below for the possible values of these fields.
+class Configuration(object):
+    def __init__(self, channel_type, high_priority_action,
+                 medium_priority_action, low_priority_action):
+        self.channel_type = channel_type
+        self.high_priority_action = high_priority_action
+        self.medium_priority_action = medium_priority_action
+        self.low_priority_action = low_priority_action
+        self.previous_thread_id = None
+        self.last_thread_started = datetime.datetime.min
+        self._lock = threading.Lock()
+
+    def get_thread(self):
+        with self._lock:
+            prev_thread = self.previous_thread_id
+            last_new_thread = self.last_thread_started
+            if not prev_thread or not last_new_thread:
+                # We don't even have a thread to attach to, short-circuit
+                return None
+
+            now = datetime.datetime.now()
+            should_thread = (
+                now - last_new_thread <= _CREATE_NEW_THREAD_TIMEOUT)
+
+            if not should_thread:
+                return None
+
+            return prev_thread
+
+    def set_thread(self, thread_id):
+        with self._lock:
+            now = datetime.datetime.now()
+            self.last_thread_started = now
+            self.previous_thread_id = thread_id
 
 
 def consider_ping():
@@ -126,6 +155,16 @@ CHANNELS = {
 }
 
 
+def get_channel_thread(for_channel):
+    channel = CHANNELS[for_channel]
+    return channel.get_thread()
+
+
+def set_channel_thread(for_channel, thread_id):
+    channel = CHANNELS[for_channel]
+    channel.set_thread(thread_id)
+
+
 def format_message(incident, channel, should_ping=True):
     trigger_summary_data = incident.get('trigger_summary_data', {})
 
@@ -135,22 +174,19 @@ def format_message(incident, channel, should_ping=True):
     if 'description' in trigger_summary_data:
         summary = trigger_summary_data['description']
 
-    (channel_type,
-     high_priority_action,
-     medium_priority_action,
-     low_priority_action) = CHANNELS[channel]
+    channel = CHANNELS[channel]
 
     is_p911 = incident['urgency'] == 'high'
     is_weekday = _now_us_pacific().weekday() < 5
 
     priority = 'P911' if is_p911 else 'P0'
 
-    action = (high_priority_action if is_p911 and should_ping else
-              medium_priority_action if is_weekday and should_ping else
-              low_priority_action)
+    action = (channel.high_priority_action if is_p911 and should_ping else
+              channel.medium_priority_action if is_weekday and should_ping else
+              channel.low_priority_action)
     (at_mention, next_steps) = _ACTIONS[action]
 
-    base_message = _BASE_MESSAGES[channel_type]
+    base_message = _BASE_MESSAGES[channel.channel_type]
 
     return base_message.format(
         at_mention=at_mention,

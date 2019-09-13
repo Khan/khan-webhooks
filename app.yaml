@@ -1,6 +1,8 @@
 runtime: python27
 api_version: 1
 threadsafe: true
+manual_scaling:
+  instances: 1
 
 libraries:
 - name: webapp2

@@ -162,7 +162,7 @@ def _transaction_search_from_phids(phid, phid_map):
         objectIdentifier=phid, constraints=phid_map).response
 
 
-def _send_to_slack(message, channel, username, icon_emoji):
+def _send_to_slack(message, channel, username, icon_emoji, thread=None):
     logging.info('Posting "%s" to %s in Slack' % (message, channel))
     post_data = {
         'text': message,
@@ -170,9 +170,14 @@ def _send_to_slack(message, channel, username, icon_emoji):
         'username': username,
         'icon_emoji': icon_emoji,
         'link_names': 1,
+        'thread_ts': thread,
     }
-    requests.post(secrets.slack_webhook_url,
-                  data={'payload': json.dumps(post_data)})
+    return requests.post('https://slack.com/api/chat.postMessage',
+                         data=json.dumps(post_data),
+                         headers={
+                             'Content-type': 'application/json',
+                             'Authorization': 'Bearer %s' % (
+                                 secrets.slack_bot_access_token)})
 
 
 def _build_slack_message(phid_info, transaction_type, author_phid):
@@ -353,11 +358,18 @@ class PagerParrot(webapp2.RequestHandler):
                 # Only trigger if we haven't seen the message, and if it's a
                 # trigger, rather than an acknowledgement or resolve.
                 for channel in pager_parrot.CHANNELS:
-                    _send_to_slack(
+                    resp = _send_to_slack(
                         pager_parrot.format_message(
                             message['data']['incident'], channel,
                             should_ping=should_ping),
-                        channel, 'Pager Parrot', ':parrot:')
+                        channel, 'Pager Parrot', ':parrot:',
+                        thread=pager_parrot.get_channel_thread(channel))
+
+                    # We should stash any thread info for future use
+                    msg = resp.json()
+                    if 'ts' in msg:
+                        pager_parrot.set_channel_thread(channel, msg['ts'])
+
                 pagerduty_ids_seen.add(message['id'])
 
 
