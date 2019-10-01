@@ -29,11 +29,14 @@ from third_party import requests
 # thing to do.
 pagerduty_ids_seen = set()
 
+PHABRICATOR_HOST = "https://phabricator.khanacademy.org"
+PHABRICATOR_USERNAME = "khan-webhooks"
+
 
 def _get_phabricator():
     return phabricator.Phabricator(
-        host=secrets.phabricator_host + '/api/',
-        username=secrets.phabricator_username,
+        host=PHABRICATOR_HOST + '/api/',
+        username=PHABRICATOR_USERNAME,
         certificate=secrets.phabricator_certificate,
     )
 
@@ -296,7 +299,7 @@ class PhabFox(webapp2.RequestHandler):
                 self.request.get('storyText'))
 
             if match:
-                url = "%s/%s" % (secrets.phabricator_host, match.group('code'))
+                url = "%s/%s" % (PHABRICATOR_HOST, match.group('code'))
                 author = match.group('who')
                 message = u':phabricator: <%s|%s>: %s (%s by %s)' % (
                     url, match.group('code'),

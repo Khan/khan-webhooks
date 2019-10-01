@@ -2,12 +2,9 @@
 
 ## Deployment
 
-First set up secrets.py by copying secrets.py.example to secrets.py,
-and setting the phabricator_certificate field to be the value from
-the Keeper secret at Devops > "Phabricator certificate for khan-webhooks"
-
-Also fill in slack_bot_access_token, taking the value from the Keeper secret at
-Devops > Slack > "Slack: Bot token (for API) for Pager Parrot"
+First ensure that you have access to the right set of secrets by running `make
+secrets.py`. You will need to first set up access to the keeper cli using the
+directions [here](http://khanacademy.org/r/keeper-cli).
 
 You can then deploy by running `make deploy`.
 

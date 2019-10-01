@@ -17,7 +17,9 @@ deps:
 check test: deps  # it's cheap enough to init submodules in this repo
 	python runner.py $(GOOGLE_SDK_ROOT)
 
+secrets.py: secrets-config.json
+	./generate_secrets.py
+
 .PHONY: deploy
-deploy: deps
-	[ -s secrets.py ] || { echo "Set up secrets.py as per README.md"; exit 1; }
+deploy: deps secrets.py
 	gcloud app deploy app.yaml --project khan-webhooks --version 1 --promote
