@@ -112,7 +112,7 @@ USER_CHANNEL_MAP = {
     'kairui': {'#khan-district-eng'},
     'mattdunnrankin': {'#khan-district-eng'},
     'steve': {'#khan-district-eng'},
-    'jbandelin': {'#khan-district-eng'},
+    'jenniferbandelin': {'#khan-district-eng'},
 }
 
 ACTIONS_MAP = {
