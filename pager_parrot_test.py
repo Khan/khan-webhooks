@@ -119,12 +119,6 @@ class PagerParrotConfigurationTest(unittest.TestCase):
     These may fail if you update the configuration; just update them, too.
     """
 
-    def test_proper_whitespace_in_base_messages(self):
-        # These are just a bit annoying in Slack.
-        for base_message in pager_parrot._BASE_MESSAGES.viewvalues():
-            self.assertNotIn('\n', base_message)
-            self.assertEquals(len(base_message.split('  ')), 1, base_message)
-
     def test_1s0s_configured(self):
         self.assertIn('#1s-and-0s', pager_parrot.CHANNELS)
 
