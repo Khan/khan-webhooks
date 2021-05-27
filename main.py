@@ -93,6 +93,7 @@ USER_CHANNEL_MAP = {
     'bryan': {'#il-eng'},
     'dhruv': {'#classroom-eng'},
     'hannah': {'#il-eng'},
+    'hunter': {'#classroom-eng'},
     'jared': {'#il-eng'},
     'jenniferbandelin': {'#khan-district-eng'},
     'kevinb': {'#il-eng'},
