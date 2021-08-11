@@ -105,6 +105,7 @@ USER_CHANNEL_MAP = {
     'sean': {'#classroom-eng'},
     'steve': {'#khan-district-eng'},
     'yash': {'#classroom-eng'},
+    'pepper': {'#classroom-eng'},
 }
 
 ACTIONS_MAP = {
