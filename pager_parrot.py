@@ -106,7 +106,8 @@ _BASE_MESSAGES = {
         in PagerDuty:
         \\n> {summary}\\n
         I'll {next_steps} to make sure someone is looking at it. See
-        <http://911.khanacademy.org/|the 911 docs> for more information
+        <https://docs.google.com/document/d/1LBkjvNxIon5kmZo8gWtT7C_Nq-aWPKD56W4M27a_PjA/edit?usp=sharing|the 911 docs>
+        for more information
         on these alerts.
         """),
     _THIRD_PARTY: _preprocess_base_message(

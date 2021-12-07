@@ -339,7 +339,7 @@ class PhabFox(webapp2.RequestHandler):
 
 
 # Add me as an outgoing webhook for a service in PagerDuty.
-# See http://911.khanacademy.org/ for details.
+# See https://khanacademy.org/r/911 for details.
 class PagerParrot(webapp2.RequestHandler):
     # TODO(benkraft): this has no auth whatsoever.  I'm not too worried about
     # it, but we might want to do some sort of checking (e.g. via hitting the
