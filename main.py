@@ -12,8 +12,8 @@ import webapp2
 try:
     import secrets
 except ImportError:
-    print ("secrets.py is missing -- copy and tweak the template from "
-           "secrets.py.example.")
+    print("secrets.py is missing -- copy and tweak the template from "
+          "secrets.py.example.")
     raise
 
 sys.path.insert(1, 'third_party')
@@ -212,6 +212,7 @@ class PhabricatorFox(webapp2.RequestHandler):
     follows the Phabricator system documented at
     https://secure.phabricator.com/book/phabricator/article/webhooks/
     """
+
     def post(self):
         logging.info("Processing %s" % self.request.body)
         request_body = json.loads(self.request.body)
@@ -288,6 +289,7 @@ class PhabFox(webapp2.RequestHandler):
     reviews are being requested, so we are keeping this handler to
     do that until the old system has been completely deprecated.
     """
+
     def post(self):
         logging.info("Processing %s" % self.request.arguments())
         if (self.request.get('storyType') ==
@@ -311,8 +313,8 @@ class PhabFox(webapp2.RequestHandler):
                     repo_callsign = _callsign_from_repository_phid(repo_phid)
                     if not repo_callsign:
                         logging.info(
-                                "Unable to determine repo callsign for %s" %
-                                repo_phid)
+                            "Unable to determine repo callsign for %s" %
+                            repo_phid)
 
                 _send_to_slack(
                     message, '#1s-and-0s-commits', 'Phabricator Fox', ':fox:')
@@ -326,13 +328,13 @@ class PhabFox(webapp2.RequestHandler):
 
                 for channel in extra_channels:
                     _send_to_slack(
-                            message, channel, 'Phabricator Fox', ':fox:')
+                        message, channel, 'Phabricator Fox', ':fox:')
             else:
                 logging.info("Story text didn't match regexp. Text was: %s" %
-                        self.request.get('storyText'))
+                             self.request.get('storyText'))
         else:
             logging.info("Ignoring unknown story type: %s" %
-                    self.request.get('storyType'))
+                         self.request.get('storyType'))
 
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('OK')
@@ -340,6 +342,7 @@ class PhabFox(webapp2.RequestHandler):
 
 # Add me as an outgoing webhook for a service in PagerDuty.
 # See https://khanacademy.org/r/911 for details.
+# TODO(boris): deprecated from Oct 22nd, 2022, removed this after testing V3
 class PagerParrot(webapp2.RequestHandler):
     # TODO(benkraft): this has no auth whatsoever.  I'm not too worried about
     # it, but we might want to do some sort of checking (e.g. via hitting the
@@ -372,8 +375,61 @@ class PagerParrot(webapp2.RequestHandler):
                 pagerduty_ids_seen.add(message['id'])
 
 
+# Add me as an webhook v3 for a service in PagerDuty.
+# See https://khan-academy.pagerduty.com/integrations/webhooks/
+class PagerParrotV3(webapp2.RequestHandler):
+    # TODO(benkraft): this has no auth whatsoever.  I'm not too worried about
+    # it, but we might want to do some sort of checking (e.g. via hitting the
+    # PagerDuty API) or use an obscure URL.
+    def post(self):
+        logging.info("Processing %s" % self.request.body)
+        payload = json.loads(self.request.body)
+
+        # Example event
+        # {
+        # "event":{
+        #     "id":"01D9ZLW3WNDOAANVZK336C1BFV",
+        #     "event_type":"pagey.ping",
+        #     "resource_type":"pagey",
+        #     "occurred_at":"2022-10-17T21:45:48.402Z",
+        #     "agent":null,
+        #     "client":null,
+        #     "data":{
+        #         "message":"Hello from your friend Pagey!",
+        #         "type":"ping"
+        #     }
+        # }
+        # }
+        global pagerduty_ids_seen
+        msg_id = payload["id"]
+        msg_type = payload["event_type"]
+        if (
+            msg_id not in pagerduty_ids_seen
+            and msg_type == 'incident.trigger'
+        ):
+            should_ping = pager_parrot.consider_ping()
+            # Only trigger if we haven't seen the message, and if it's a
+            # trigger, rather than an acknowledgement or resolve.
+            for channel in pager_parrot.CHANNELS:
+                resp = _send_to_slack(
+                    pager_parrot.format_message(
+                        payload['data']['incident'], channel,
+                        should_ping=should_ping),
+                    channel, 'Pager Parrot', ':parrot:',
+                    thread=pager_parrot.get_channel_thread(channel))
+
+                # We should stash any thread info for future use
+                msg = resp.json()
+                if 'ts' in msg:
+                    pager_parrot.set_channel_thread(channel, msg['ts'])
+
+            pagerduty_ids_seen.add(msg_id)
+
+
 app = webapp2.WSGIApplication([
     ('/new-phabricator-feed', PhabricatorFox),
     ('/phabricator-feed', PhabFox),
     ('/pagerduty-feed', PagerParrot),
+    # TODO(boris): deprecated from Oct 22nd, 2022
+    ('/pagerduty-v3-feed', PagerParrot),
 ])
